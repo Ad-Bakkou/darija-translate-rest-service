@@ -161,10 +161,4 @@ Fresh Step 8 results (2026-11-13): **Java 92; Chrome 51; Python 13; PHP 40 asser
 - Native Android APK, production HTTPS, exhaustive accessibility/device testing and all offline/edge-case UI paths remain unverified. Expo Go does not apply the custom native debug-build network policy.
 - Liberty 25.0.0.10 has a narrowly handled malformed-Basic audit failure; see [security implementation notes](docs/security-verification.md). Internal FFDC may still be generated and stays ignored.
 
-## Presentation and academic notice
 
-Use the [demo script](docs/demo-script.md), [recording guide](docs/recording-guide.md), [submission checklist](docs/submission-checklist.md) and [final verification/audit](docs/final-verification.md). Local Git and source ZIP preparation are complete; GitHub publication and the actual MP4 are **pending**. The intended destination is Ad-Bakkou/darija-translate-rest-service, pending explicit public-publication approval and correct-account authentication; no published URL is claimed. See [publication instructions](docs/github-publication.md).
-
-After a clean reviewed commit, run `python docs/package-submission.py` to produce `dist/DarijaTranslate-MiniProject2-Submission.zip` and its checksum/inventory. The archive contains committed source/docs/UML only, with no video, dependencies, secrets or local tools. Regenerate after adding a verified repository URL or final video delivery metadata. The package is prepared locally; it has not been submitted to the university.
-
-This is an individual academic assignment. Third-party components retain their respective licenses; no project-wide open-source license has been selected. Follow the course's attribution and assistance-disclosure requirements. Submission deadline supplied by the student: November 12, 2026, 11:59 PM (confirm the course's deadline timezone).
