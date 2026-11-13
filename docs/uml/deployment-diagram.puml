@@ -1,0 +1,103 @@
+@startuml
+!pragma layout smetana
+title DarijaTranslate | Verified local development deployment
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam nodesep 45
+skinparam ranksep 65
+skinparam ArrowColor #387460
+skinparam node {
+ BackgroundColor #F3F8F5
+ BorderColor #387460
+}
+skinparam artifact {
+ BackgroundColor #FFFFFF
+ BorderColor #688B7A
+}
+skinparam component {
+ BackgroundColor #FFFFFF
+ BorderColor #688B7A
+}
+
+node "Windows development computer" as windows {
+ node "Chrome browser" as chrome {
+  artifact "DarijaTranslate MV3 extension" as extension {
+   component "Service worker\nselectionText + pending mailbox" as worker
+   component "Side panel\nfetch + session credentials\ncopy + local speech" as panel
+
+}
+  worker --> panel : runtime messaging
+
+}
+ node "Python 3.12 runtime" as python {
+  artifact "main.py / translator_client.py\nRequests + HTTPBasicAuth" as cli
+
+}
+ node "Browser (PHP interface)" as browser
+ node "PHP 8.4 runtime\n127.0.0.1:8081" as php {
+  artifact "public/index.php + src/\nserver-rendered form + cURL\naccount from server environment" as phpapp
+
+}
+ node "Open Liberty 25.0.0.10\nJava 21 | 127.0.0.1:9080" as liberty {
+  artifact "darija-backend.war\ncontext root /" as war {
+   component "Servlet URL constraints\nJakarta Authentication bridge\nJakarta Security mechanism + IdentityStore" as auth
+   component "Jakarta REST\n/api/health (public)\n/api/translate (translator role)" as api
+   component "GeminiTranslationService\nJava HttpClient + JSON-P" as gemini
+   auth --> api : authorize protected requests
+   api --> gemini : validated translation
+
+}
+
+}
+ node "Node 24 LTS / Expo Metro\nlocalhost:8082" as metro {
+  artifact "TypeScript / React Native bundle" as bundle
+
+}
+ node "ADB host / USB debugging" as adb {
+  component "reverse tcp:9080 tcp:9080" as apiRoute
+  component "reverse tcp:8082 tcp:8082" as metroRoute
+
+}
+}
+node "Physical Android smartphone\nXiaomi Redmi Note 11 Pro · 2201116TG" as phone {
+ node "Expo Go (tested runtime)" as go {
+  artifact "DarijaTranslate Mobile\nExpo 58 / React Native 0.88\nExpo Fetch + RTL Text" as mobile
+  component "SecureStore\ndevice-protected account" as storage
+  component "Expo Clipboard" as clipboard
+  mobile --> storage
+  mobile --> clipboard
+
+}
+}
+cloud "Google Gemini API\nExternal inference service\nmodel: gemini-3.5-flash-lite" as google
+panel --> auth : loopback HTTP + Basic\nJSON POST /api/translate
+cli --> auth : loopback HTTP + Basic
+browser --> phpapp : loopback HTTP\nform POST + CSRF
+phpapp --> auth : server-side loopback HTTP\ncURL + Basic
+mobile --> apiRoute : phone 127.0.0.1:9080\nHTTP + Basic over USB reverse
+apiRoute --> auth : Windows 127.0.0.1:9080
+mobile --> metroRoute : phone 127.0.0.1:8082\nforwarded development connection
+metroRoute --> metro : HTTP / development WebSocket
+gemini --> google : HTTPS generateContent\nx-goog-api-key (backend only)
+note bottom of liberty
+ Backend binds only to Windows loopback; HTTPS listener disabled.
+ GEMINI_API_KEY exists only in the Java environment.
+ TRANSLATOR_USERNAME/PASSWORD configure the local account.
+ Public health checks omit Basic credentials.
+end note
+note bottom of phone
+ Phone loopback is not Windows loopback without ADB reverse.
+ USB routes and real translation are user-confirmed.
+ Custom native debug APK and release deployment are NOT verified.
+ Expo Go uses its own native network-security policy.
+end note
+legend bottom
+ Local university development architecture, not a production network deployment.
+ No client calls Gemini directly. No public/LAN HTTP endpoint is exposed by Java.
+ Remote production use requires HTTPS and a separately reviewed access model.
+endlegend
+@enduml

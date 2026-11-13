@@ -1,0 +1,47 @@
+@startuml
+title Steps 1-6: authenticated English-to-Darija clients
+actor User as user
+component "Chrome Manifest V3\nservice worker + side panel\nsession account" as chrome
+component "Python CLI\nrequests.Session + HTTPBasicAuth\nenvironment / getpass" as python
+node "Android / Expo Go (user-verified)" {
+ component "Expo / React Native mobile app\nSecureStore + Expo Fetch\nRTL Text + Clipboard" as mobile
+}
+component "ADB reverse tcp:9080\nAndroid loopback -> Windows loopback\nrequires connected authorized device" as reverse
+user --> mobile
+mobile --> reverse : JSON + UTF-8 Basic
+component "Browser\nHTML form + CSRF token" as browser
+node "PHP development server\n127.0.0.1:8081" {
+ component "PHP form controller\nCSRF validation + escaped HTML" as phpweb
+ component "PHP cURL client\nserver environment credentials" as phpclient
+ phpweb --> phpclient
+}
+user --> chrome : toolbar / selection command
+user --> python : interactive / one-shot
+user --> browser
+browser --> phpweb : local form POST
+phpweb --> browser : escaped RTL result
+node "Open Liberty 25.0.0.10 / Java 21\nloopback HTTP only" {
+ component "Servlet URL security constraints\n/* -> translator role\n/api/health -> public" as constraints
+ component "Jakarta Authentication bridge\nJakarta Security HttpAuthenticationMechanism" as auth
+ component "TranslatorIdentityStore\nenvironment demonstration account" as identity
+ component "Container role authorization\ntranslators group -> translator role" as role
+ component "TranslatorResource\nvalidation and JSON-P" as rest
+ interface TranslationService as service
+ component GeminiTranslationService as gemini
+ component "GET /api/health" as health
+ constraints --> auth
+ auth --> identity : IdentityStoreHandler
+ auth --> role : establish caller identity
+ role --> rest : permitted only
+ rest --> service
+ service <|.. gemini
+ constraints --> health : exact public URL
+}
+cloud "Google Gemini generateContent" as google
+chrome --> constraints : loopback JSON + Basic
+python --> constraints : loopback JSON + Basic
+phpclient --> constraints : loopback JSON + Basic
+reverse --> constraints : 127.0.0.1:9080\nno LAN binding change
+gemini --> google : HTTPS + separate provider key
+note bottom of auth : Invalid/missing credentials -> 401 + Basic challenge\nValid identity without role -> 403\nNo Gemini call for rejected requests
+@enduml

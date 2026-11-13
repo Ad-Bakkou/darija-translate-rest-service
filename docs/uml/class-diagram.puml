@@ -1,0 +1,160 @@
+@startuml
+set namespaceSeparator none
+title DarijaTranslate | Backend class architecture
+caption Source: backend/src/main/java/edu/miniproject · Java 21 / Jakarta EE 10
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam packageStyle rectangle
+skinparam nodesep 40
+skinparam ranksep 55
+skinparam class {
+ BackgroundColor #F3F8F5
+ BorderColor #387460
+ ArrowColor #45635A
+}
+skinparam package {
+ BackgroundColor #FAFCFB
+ BorderColor #B5C9BE
+ FontColor #214D3D
+}
+hide empty members
+
+package "edu.miniproject — REST boundary" {
+ class "jakarta.ws.rs.core.Application" as Application <<external>>
+ interface "ExceptionMapper<Exception>" as ExceptionMapper <<external>>
+ class RestApplication <<@ApplicationPath("/api")>>
+ class HealthResource <<@Path("/health")>> {
+  + health(): String
+
+}
+ class TranslatorResource <<@Path("/translate")>> {
+  ~ service: TranslationService <<@Inject>>
+  + TranslatorResource()
+  + translate(body: String): String
+
+}
+ class ApiExceptionMapper <<@Provider>> {
+  + toResponse(e: Exception): Response
+
+}
+}
+package "edu.miniproject — Translation" {
+ abstract class "java.net.http.HttpClient" as HttpClient <<external>>
+ interface TranslationService {
+  + translate(text: String): String
+
+}
+ class GeminiTranslationService <<@ApplicationScoped>> {
+  - config: GeminiConfiguration
+  - client: HttpClient
+  - timeout: Duration
+  + GeminiTranslationService()
+  + translate(text: String): String
+  + initialized(event: Object): void
+  {static} ~ parse(body: String): String
+
+}
+ class GeminiConfiguration <<final>> {
+  - key: String
+  - model: String
+  {static} + CONNECT_TIMEOUT: Duration = 10s
+  {static} + REQUEST_TIMEOUT: Duration = 45s
+  + GeminiConfiguration(key: String, model: String)
+  {static} + environment(): GeminiConfiguration
+  + validate(): void
+  + endpoint(): URI
+  + apiKey(): String
+  + diagnosticModel(): String
+  + hasCredentials(): boolean
+
+}
+}
+package "edu.miniproject — Data and errors" {
+ class TranslationRequest <<record>> {
+  - text: String
+  - sourceLanguage: String
+  {static} + parse(body: String): TranslationRequest
+
+}
+ class TranslationResponse <<record>> {
+  - originalText: String
+  - translatedText: String
+  - sourceLanguage: String
+  - targetLanguage: String
+  + json(): String
+
+}
+ class ErrorResponse <<record>> {
+  - error: String
+  - message: String
+  + json(): String
+
+}
+ class "RuntimeException" as RuntimeException <<external>>
+ class ApiException {
+  ~ status: int
+  ~ code: String
+  + ApiException(status: int, code: String, message: String)
+
+}
+}
+package "edu.miniproject — Authentication boundary" {
+ interface "HttpAuthenticationMechanism" as Mechanism <<external>>
+ interface "IdentityStore" as IdentityStore <<external>>
+ interface "IdentityStoreHandler" as Handler <<external>>
+ abstract class "HttpServlet" as Servlet <<external>>
+ class SecurityConfiguration <<@ApplicationScoped>> {
+  ~ identities: IdentityStoreHandler <<@Inject>>
+  + validateRequest(request, response, context): AuthenticationStatus
+
+}
+ class TranslatorIdentityStore <<@ApplicationScoped>> {
+  - username: String
+  - password: String
+  + TranslatorIdentityStore()
+  + validate(credential: Credential): CredentialValidationResult
+
+}
+ class SecurityErrorServlet <<@WebServlet>> {
+  # service(request, response): void
+  {static} ~ isMalformedBasicAuditFailure(error: Throwable): boolean
+
+}
+}
+Application <|-- RestApplication
+ExceptionMapper <|.. ApiExceptionMapper
+Mechanism <|.. SecurityConfiguration
+IdentityStore <|.. TranslatorIdentityStore
+Servlet <|-- SecurityErrorServlet
+RuntimeException <|-- ApiException
+TranslationService <|.. GeminiTranslationService
+TranslatorResource --> TranslationService : injected service
+GeminiTranslationService --> GeminiConfiguration : configuration
+GeminiTranslationService --> HttpClient : HTTPS requests
+TranslatorResource ..> TranslationRequest : parse / validate
+TranslatorResource ..> TranslationResponse : construct / serialize
+TranslationRequest ..> ApiException : validation failure
+GeminiTranslationService ..> ApiException : provider / parsing failures
+GeminiConfiguration ..> ApiException : configuration failure
+ApiExceptionMapper ..> ApiException : inspect
+ApiExceptionMapper ..> ErrorResponse : serialize safe JSON
+SecurityConfiguration --> Handler : validate Basic credential
+Handler ..> TranslatorIdentityStore : discovers via CDI
+SecurityErrorServlet ..> ErrorResponse : compatibility response
+legend bottom
+ + public   # protected   ~ package-private   - private
+ Solid arrow: stored reference / association; dashed: dependency.
+ Hollow triangle: inheritance (solid) or realization (dashed).
+ Records include generated public accessors/canonical constructors (omitted).
+ Package headings group responsibilities; all project classes are in edu.miniproject.
+ Constructors used only as package-private test seams are omitted. No composition asserted.
+ SecurityConfiguration: Jakarta Security through Liberty's Jakarta Authentication bridge.
+ web.xml: /* requires translator; exact /api/health public; server.xml: translators group -> translator role.
+ SecurityErrorServlet: protected /internal/security-error, dispatched by web.xml for 500.
+ Only recognized Liberty malformed-Basic audit failures become 401; other failures remain 500.
+endlegend
+@enduml

@@ -1,0 +1,33 @@
+**/target/
+.env
+.env.*
+!.env.example
+**/server.env
+*.log
+node_modules/
+.expo/
+__pycache__/
+.venv/
+.idea/
+.vscode/
+*.pem
+*.key
+
+# Local browser verification tooling, never part of extension distribution
+.browser-testing/
+.tools/
+
+# Local Android signing/configuration and generated submission artifacts
+**/local.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+/submission-output/
+/dist/
+*.mp4
+*.har
+*.pcap
+*.pcapng
+*.crt
+*.cer

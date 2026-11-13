@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+  <!-- Protect every method and path by default, including path parameters and subpaths. -->
+  <security-constraint>
+    <web-resource-collection><web-resource-name>Protected application</web-resource-name><url-pattern>/*</url-pattern></web-resource-collection>
+    <auth-constraint><role-name>translator</role-name></auth-constraint>
+  </security-constraint>
+  <!-- The more-specific exact mapping exposes health only. -->
+  <security-constraint>
+    <web-resource-collection><web-resource-name>Public health</web-resource-name><url-pattern>/api/health</url-pattern></web-resource-collection>
+  </security-constraint>
+  <error-page><error-code>500</error-code><location>/internal/security-error</location></error-page>
+  <security-role><role-name>translator</role-name></security-role>
+</web-app>

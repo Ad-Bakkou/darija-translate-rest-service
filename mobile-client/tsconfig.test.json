@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","module":"commonjs","moduleResolution":"node","ignoreDeprecations":"6.0","strict":true,"esModuleInterop":true,"skipLibCheck":true,"outDir":".test-build","rootDir":"src","lib":["ES2022","DOM"],"types":[]},"include":["src/services/api.ts","src/services/account.ts","src/utils/*.ts","src/types/*.ts","src/config/*.ts"]}
