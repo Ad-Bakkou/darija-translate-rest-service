@@ -2,14 +2,14 @@
 
 Native PHP 8.x with cURL; tested with official Windows x64 NTS PHP 8.4.27 (distribution 8.4.27-1). JSON, PCRE and sessions are included in this runtime. No Composer/framework dependency. Only public/ is served; src/ and tests/ are outside the document root.
 
-This workspace has a standalone runtime at `.tools/php/php.exe` (relative to repository root), with cURL enabled in its private php.ini. It is ignored by Git and does not alter Java, Maven or system PATH. Installation/reproduction details: ../docs/client-setup.md.
+Install PHP with cURL enabled and place `php` on PATH. See the [client setup guide](../docs/client-setup.md) for a standalone Windows installation.
 
-In a separate IntelliJ PowerShell terminal, from the repository root, set TRANSLATOR_USERNAME and TRANSLATOR_PASSWORD to the existing backend account using the secure prompts documented in the setup guide. Leave Liberty running in its own configured terminal. Confirm port 8081 is free, then:
+In a separate PowerShell terminal, from the repository root, set TRANSLATOR_USERNAME and TRANSLATOR_PASSWORD to the existing backend account using the secure prompts documented in the setup guide. Leave Liberty running in its own configured terminal. Confirm port 8081 is free, then:
 
 ```powershell
-.tools/php/php.exe -v
-.tools/php/php.exe -m
-.tools/php/php.exe -S 127.0.0.1:8081 -t php-client/public
+php -v
+php -m
+php -S 127.0.0.1:8081 -t php-client/public
 ```
 
 Open http://127.0.0.1:8081, enter English text and Translate. Results display RTL, with an escaped original-text disclosure and Copy button. The counter uses Unicode code points, matching server validation. JavaScript only improves the form's counter/loading/copy behavior; REST requests use server-side PHP cURL. The form also works with JavaScript disabled. Stop PHP with Ctrl+C; restart it after changing its environment. No .env file is automatically loaded.
@@ -23,13 +23,13 @@ This is a local single-user development application: anyone with access to its l
 Errors explain offline/network, 400 input, 401 credentials, 403 role, 422 content, 429 rate limit, 502/503 provider, 504 timeout, redirect rejection and malformed/empty responses. Internal exception text/provider bodies are not rendered. Backend online indicates process health only. Use the existing Java diagnostic logs for upstream failures.
 
 ```powershell
-Get-ChildItem php-client -Recurse -Filter *.php | ForEach-Object { & .tools/php/php.exe -l $_.FullName }
-.tools/php/php.exe php-client/tests/run.php
-.tools/php/php.exe php-client/tests/live.php
+Get-ChildItem php-client -Recurse -Filter *.php | ForEach-Object { & php -l $_.FullName }
+php php-client/tests/run.php
+php php-client/tests/live.php
 # Explicitly performs one real translation, using server environment credentials:
-.tools/php/php.exe php-client/tests/live.php --translate
+php php-client/tests/live.php --translate
 ```
 
-run.php is deterministic and never calls Gemini. live.php without --translate checks only health. See ../docs/client-setup.md for offline wire tests and the browser acceptance checklist. Files: public/index.php, public/assets/style.css and app.js; src/Configuration.php, TranslatorClient.php and Web.php; tests/run.php and live.php. No browser visual/copy check or successful live Gemini translation is claimed by these tests.
+run.php is deterministic and never calls Gemini. live.php without --translate checks only health. See the [client setup guide](../docs/client-setup.md) for offline wire tests and the browser acceptance checklist. Files: public/index.php, public/assets/style.css and app.js; src/Configuration.php, TranslatorClient.php and Web.php; tests/run.php and live.php. No browser visual/copy check or successful live Gemini translation is claimed by these tests.
 
-The user subsequently confirmed a real authenticated translation through the PHP application. Automated HTTP form checks and user-confirmed live translation are recorded separately in ../docs/verification.md; exhaustive visual/accessibility and real-browser Copy checks are not inferred.
+A real authenticated translation through the PHP application was previously reported by the project owner. The [testing summary](../docs/testing.md) distinguishes automated HTTP checks from live observations; exhaustive visual/accessibility and browser Copy checks are not claimed.

@@ -26,4 +26,4 @@ Errors are safe fixed messages: 400 input, 401 credentials, 403 role, 422 reject
 python-client/.venv/Scripts/python.exe -m unittest discover -s python-client/tests -v
 ```
 
-Tests mock HTTP and never call Gemini. Files: main.py (CLI), translator_client.py (HTTP/validation), requirements.txt and tests/. For wire tests and real-backend acceptance see ../docs/client-setup.md and ../docs/verification.md. The user subsequently confirmed successful authenticated live translation; see the verification report for provenance.
+Tests mock HTTP and never call Gemini. Files: main.py (CLI), translator_client.py (HTTP/validation), requirements.txt and tests/. For wire tests and real-backend acceptance see the [client setup guide](../docs/client-setup.md) and [testing summary](../docs/testing.md). Successful authenticated live translation was previously reported by the project owner.

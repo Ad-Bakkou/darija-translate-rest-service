@@ -32,7 +32,7 @@ Rendered locally with official **PlantUML 1.2026.10** (Java 21). Downloaded from
 e9bc9e6b2eb715e8c0c929f3dcb5fc1923be13f37599b09c293c66d354e88686
 ```
 
-The official release asset digest was checked before use. The JAR lives in ignored `.tools/` locally and is not a submission dependency: download it independently. The class layout uses PlantUML's default DOT renderer (the Windows JAR reported Graphviz 2.44.1); deployment uses the bundled Smetana engine. No separate global Graphviz installation was made. Other platforms may require [Graphviz](https://plantuml.com/graphviz-dot) for the class layout.
+The official release asset digest was checked before use. Download the JAR independently; no tool binary is bundled. The class layout uses PlantUML's default DOT renderer (the Windows JAR reported Graphviz 2.44.1); deployment uses the bundled Smetana engine. No separate global Graphviz installation was made. Other platforms may require [Graphviz](https://plantuml.com/graphviz-dot) for the class layout.
 
 From repository root, after downloading the verified JAR to a location of your choice:
 
@@ -49,4 +49,4 @@ java -jar path/to/plantuml-1.2026.10.jar -tsvg docs/uml/class-diagram.puml docs/
 java -jar path/to/plantuml-1.2026.10.jar -tpng docs/uml/class-diagram.puml docs/uml/deployment-diagram.puml
 ```
 
-The script fails on syntax/render errors, invalid SVG XML or invalid PNG signatures. Step 7 additionally decoded the PNGs and inspected the images for clipped text, labels and relationship paths. Reinspect exports whenever changing source or renderer versions. Initial layout/syntax drafts were corrected; the first class layout exceeded the PNG limit and was replaced with a more compact DOT layout before acceptance.
+The script fails on syntax/render errors, invalid SVG XML or invalid PNG signatures. The published PNGs were visually checked for clipped text and readable relationships. Reinspect the exports whenever changing source or renderer versions.

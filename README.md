@@ -2,7 +2,9 @@
 
 An individual university mini project that translates English into Moroccan Darija using a Java/Jakarta REST service and Google Gemini. Four clients share the same authenticated API: a Chrome side panel, Python CLI, PHP web application and Expo React Native Android app.
 
-**Status:** real translations through all four clients are user-confirmed. The physical Android test used Expo Go on a Xiaomi Redmi Note 11 Pro, with USB ADB forwarding; Arabic RTL, Copy and account persistence were confirmed. Native APK and production HTTPS deployment are not verified. See the [current verification report](docs/verification.md) for evidence and limitations.
+**Repository:** [Ad-Bakkou/darija-translate-rest-service](https://github.com/Ad-Bakkou/darija-translate-rest-service)
+
+**Status:** live translations through all four clients were previously verified by the project owner. The physical Android test used Expo Go on a Xiaomi Redmi Note 11 Pro, with USB ADB forwarding; Arabic RTL, Copy and account persistence were confirmed. Native APK and production HTTPS deployment are not verified. See the [testing summary](docs/testing.md) for evidence and limitations.
 
 ## Features and technologies
 
@@ -32,7 +34,7 @@ python-client/       Interactive/one-shot CLI and unittest suite
 php-client/          public/ web root, src/ implementation, tests/
 mobile-client/       Expo/TypeScript app, native config plugin and tests
 docs/uml/            Mandatory class/deployment diagrams and exports
-docs/                API reference, setup guides, verification and submission audit
+docs/                API reference, setup guides, security and testing documentation
 ```
 
 ## Prerequisites
@@ -61,7 +63,7 @@ mvn -f backend/pom.xml liberty:create liberty:install-feature liberty:deploy lib
 curl.exe http://127.0.0.1:9080/api/health
 ```
 
-The model above is user-verified in this environment; provider availability/quota may change. Set it explicitly: the unchanged source fallback and historical `.env.example` value are `gemini-2.5-flash`. Neither is an instruction to change a working running server. The translator account is separate from the Gemini key; no default account exists. Matching is case-sensitive, and usernames cannot contain `:`. Missing/blank account variables disable authentication.
+The model above was used for the verified live translations; provider availability and quota may change. Set it explicitly: the source fallback and `.env.example` value are `gemini-2.5-flash`. The translator account is separate from the Gemini key; no default account exists. Matching is case-sensitive, and usernames cannot contain `:`. Missing or blank account variables reject all protected requests.
 
 Use `mvn -f backend/pom.xml liberty:dev` for development instead of starting a second server. Stop standalone Liberty with `mvn -f backend/pom.xml liberty:stop`. Restart from the configured terminal after environment changes. Do not run `clean` while Liberty holds files under `backend/target`. The server binds only to `127.0.0.1:9080`; WAR name is `darija-backend.war`, context root `/`. Logs remain under ignored `backend/target/liberty/wlp/usr/servers/darijaServer/logs/`.
 
@@ -148,7 +150,7 @@ npm run typecheck
 npm run doctor
 ```
 
-Fresh Step 8 results (2026-11-13): **Java 92; Chrome 51; Python 13; PHP 40 assertions plus six syntax checks; mobile 47; TypeScript passed; Expo Doctor 19/20 (expects Expo ~58.0.25, pinned 58.0.24)**. Ordinary tests do not call Gemini. Maven's real Liberty HTTP tests use an isolated test-only translation implementation and generated accounts. User-confirmed live results are recorded separately in [verification](docs/verification.md). Optional [client wire tests](docs/client-setup.md#repeatable-integration-checks-without-gemini-credits) use local fixtures, not Gemini.
+Latest automated checks (2026-11-13): **Java 92; Chrome 51; Python 13; PHP 40 assertions plus six syntax checks; mobile 47; TypeScript passed; Expo Doctor 19/20 (expects Expo ~58.0.25, pinned 58.0.24)**. Ordinary tests do not call Gemini. Maven's real Liberty HTTP tests use an isolated test-only translation implementation and generated accounts. Previously reported live results and current test coverage are distinguished in the [testing summary](docs/testing.md). Optional [client wire tests](docs/client-setup.md#repeatable-integration-checks-without-gemini-credits) use local fixtures, not Gemini.
 
 ## Security, troubleshooting and limitations
 
@@ -156,9 +158,7 @@ Fresh Step 8 results (2026-11-13): **Java 92; Chrome 51; Python 13; PHP 40 asser
 - Gemini keys are backend-only. Chrome credentials are trusted-extension session scoped; Python holds credentials in memory/environment; PHP keeps them server-side; mobile uses SecureStore where available, with a labeled session-memory fallback. Local privileged/debugger access remains a risk.
 - Never log/publish passwords, Authorization values, keys, environments or raw provider responses. PHP escapes HTML and validates CSRF; clients render returned text safely.
 - Offline: check the correct server terminal, ports and (Android) ADB routes. Health UP does not establish provider readiness. 401 means check exact account values; 403 means role mapping. 502/503/504 indicate provider/configuration/network/timeout failures. No client automatically retries a translation.
-- The historical mobile 401 is no longer reproducible; its original cause is **unproven**. Both relayed and direct real requests succeeded during investigation; no authentication/transport change was needed.
+- The historical mobile 401 is no longer reproducible; its original cause is **unproven**. Successful direct translation and account persistence were subsequently confirmed; no specific transport defect was established.
 - npm audit still reports **three moderate Expo-related findings**. No incompatible SDK downgrade was forced. A clean dependency/security audit is not claimed.
 - Native Android APK, production HTTPS, exhaustive accessibility/device testing and all offline/edge-case UI paths remain unverified. Expo Go does not apply the custom native debug-build network policy.
 - Liberty 25.0.0.10 has a narrowly handled malformed-Basic audit failure; see [security implementation notes](docs/security-verification.md). Internal FFDC may still be generated and stays ignored.
-
-

@@ -4,7 +4,7 @@ Plain JavaScript Manifest V3 extension for the authenticated local Jakarta REST 
 
 ## Installation and usage
 
-1. Start the existing backend from the IntelliJ terminal with its Gemini and translator environment configuration. Keep it bound to 127.0.0.1:9080. Health UP does not establish Gemini readiness.
+1. Start the existing backend from a terminal with its Gemini and translator environment configuration. Keep it bound to 127.0.0.1:9080. Health UP does not establish Gemini readiness.
 2. Use Chrome 116 or newer. Open chrome://extensions, enable Developer mode, choose Load unpacked, and select this chrome-extension directory.
 3. Pin DarijaTranslate from Chrome's Extensions menu. Click the toolbar icon to open the panel.
 4. In Settings enter the backend translator username/password (never the Gemini key), then save for this session.
@@ -58,4 +58,4 @@ Or run npm test inside chrome-extension. Automated tests cover manifest/assets, 
 - Extension errors: reload from chrome://extensions, then re-enter credentials. Inspect console without logging secrets.
 - Clipboard denied: select the displayed result and copy manually. Speech unavailable: install an offline Arabic voice.
 
-Step 4 browser acceptance was subsequently confirmed by the user: extension loading, side-panel opening, online status, saved account, manual translation, right-click selection transfer, automatic Gemini translation, Copy and Read aloud. These are user-reported results, not additional Codex browser observations. See ../docs/verification.md for provenance and checks not observed. Step 5 regression testing preserved all 51 extension tests; extension source remained unchanged.
+Previously reported live checks include loading, side-panel opening, manual translation, right-click source transfer, automatic Gemini translation, Copy and Read aloud. These are project-owner observations, separate from automated tests. See the [testing summary](../docs/testing.md) for scope and limitations.
